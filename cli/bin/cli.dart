@@ -1,5 +1,7 @@
 import 'package:cli/cli.dart' as cli;
 import 'dart:io';
+import 'package:http/http.dart' as http;
+import 'package:path/path.dart';
 
 const version = "0.0.1";
 
@@ -23,8 +25,8 @@ void printUsage() {
 }
 
 //List<String>? arguments means arguments list itself can be null
-void searchWikipedia(List<String>? arguments) {
-  final String articleTitle; //wom7t be null
+void searchWikipedia(List<String>? arguments) async {
+  final String? articleTitle; //wom7t be null
 
   //if the user did not pass an argument, send request
   if (arguments == null || arguments.isEmpty) {
@@ -37,6 +39,23 @@ void searchWikipedia(List<String>? arguments) {
     articleTitle = arguments.join("");
   }
   print("Looking up articles about $articleTitle. Please wait");
-  print("Here ya go!");
-  print('(Pretend this is an article about "$articleTitle")');
+
+  //Call API
+  var articleContent = await getWikipediaArticle(articleTitle);
+  print(articleContent); //raw json
+}
+
+//Future: relevant to Promise, produce a String result in asynchronous
+Future<String> getWikipediaArticle(String articleTitle) async {
+  final url = Uri.https(
+    'en.wikipedia.org', //authority - wikipedia domain
+    '/api/rest_v1/page/summary/$articleTitle', //unencoded path,
+  );
+
+  final response = await http.get(url);
+  if (response.statusCode == 200) {
+    return response.body;
+  }
+
+  return 'Error: Failed to fetch article: "$articleTitle". Status code: "${response.statusCode}"';
 }
