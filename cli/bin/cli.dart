@@ -1,4 +1,5 @@
 import 'package:cli/cli.dart' as cli;
+import 'dart:io';
 
 const version = "0.0.1";
 
@@ -23,5 +24,19 @@ void printUsage() {
 
 //List<String>? arguments means arguments list itself can be null
 void searchWikipedia(List<String>? arguments) {
-  print("SearchWikipedia received arguments: $arguments");
+  final String articleTitle; //wom7t be null
+
+  //if the user did not pass an argument, send request
+  if (arguments == null || arguments.isEmpty) {
+    print('Please provide an article title.');
+    // await input, provide empty string if input is null
+    articleTitle = stdin.readLineSync() ?? ""; //read input
+    //??: null-coalescing operator, used as fallback in null cases
+  } else {
+    //join argumnents into single string
+    articleTitle = arguments.join("");
+  }
+  print("Looking up articles about $articleTitle. Please wait");
+  print("Here ya go!");
+  print('(Pretend this is an article about "$articleTitle")');
 }
